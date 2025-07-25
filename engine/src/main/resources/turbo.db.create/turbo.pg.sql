@@ -5,12 +5,12 @@ CREATE TABLE em_flow_definition (
     flow_key varchar(32) NOT NULL DEFAULT '',
     tenant_id varchar(16) NOT NULL DEFAULT '',
     flow_model text,
-    status smallint NOT NULL DEFAULT '0',
+    status smallint NOT NULL DEFAULT 0,
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modify_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operator varchar(32) NOT NULL DEFAULT '',
     remark varchar(512) NOT NULL DEFAULT '',
-    archive smallint NOT NULL DEFAULT '0',
+    archive smallint NOT NULL DEFAULT 0,
     tenant varchar(100) NOT NULL DEFAULT '',
     caller varchar(100) NOT NULL DEFAULT '',
     PRIMARY KEY (id),
@@ -41,12 +41,12 @@ CREATE TABLE em_flow_deployment (
     flow_key varchar(32) NOT NULL DEFAULT '',
     tenant_id varchar(16) NOT NULL DEFAULT '',
     flow_model text,
-    status smallint NOT NULL DEFAULT '0',
+    status smallint NOT NULL DEFAULT 0,
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modify_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     operator varchar(32) NOT NULL DEFAULT '',
     remark varchar(512) NOT NULL DEFAULT '',
-    archive smallint NOT NULL DEFAULT '0',
+    archive smallint NOT NULL DEFAULT 0,
     tenant varchar(100) NOT NULL DEFAULT '',
     caller varchar(100) NOT NULL DEFAULT '',
     PRIMARY KEY (id),
@@ -79,10 +79,10 @@ CREATE TABLE ei_flow_instance (
     flow_deploy_id varchar(128) NOT NULL DEFAULT '',
     flow_module_id varchar(128) NOT NULL DEFAULT '',
     tenant_id varchar(16) NOT NULL DEFAULT '',
-    status smallint NOT NULL DEFAULT '0',
+    status smallint NOT NULL DEFAULT 0,
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modify_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    archive smallint NOT NULL DEFAULT '0',
+    archive smallint NOT NULL DEFAULT 0,
     tenant varchar(100) NOT NULL DEFAULT '',
     caller varchar(100) NOT NULL DEFAULT '',
     PRIMARY KEY (id),
@@ -109,10 +109,10 @@ CREATE TABLE ei_flow_instance_mapping (
     node_instance_id varchar(128) NOT NULL DEFAULT '',
     node_key varchar(64) NOT NULL DEFAULT '',
     sub_flow_instance_id varchar(128) NOT NULL DEFAULT '',
-    type smallint NOT NULL DEFAULT '0',
+    type smallint NOT NULL DEFAULT 0,
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modify_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    archive smallint NOT NULL DEFAULT '0',
+    archive smallint NOT NULL DEFAULT 0,
     tenant varchar(100) NOT NULL DEFAULT '',
     caller varchar(100) NOT NULL DEFAULT '',
     PRIMARY KEY (id)
@@ -132,3 +132,44 @@ COMMENT ON COLUMN "ei_flow_instance_mapping"."archive" IS '归档状态(0未删�
 COMMENT ON COLUMN "ei_flow_instance_mapping"."tenant" IS '租户';
 COMMENT ON COLUMN "ei_flow_instance_mapping"."caller" IS '调用方';
 COMMENT ON TABLE "ei_flow_instance_mapping" IS '父子流程实例映射表';
+
+CREATE TABLE ei_node_instance (
+    id bigserial NOT NULL,
+    node_instance_id varchar(128) NOT NULL DEFAULT '',
+    flow_instance_id varchar(128) NOT NULL DEFAULT '',
+    source_node_instance_id varchar(128) NOT NULL DEFAULT '',
+    instance_data_id varchar(128) NOT NULL DEFAULT '',
+    flow_deploy_id varchar(128) NOT NULL DEFAULT '',
+    node_key varchar(64) NOT NULL DEFAULT '',
+    node_type integer NOT NULL DEFAULT 0,
+    source_node_key varchar(64) NOT NULL DEFAULT '',
+    tenant_id varchar(16) NOT NULL DEFAULT '',
+    status smallint NOT NULL DEFAULT 0,
+    create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modify_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    archive smallint NOT NULL DEFAULT 0,
+    tenant varchar(100) NOT NULL DEFAULT '',
+    caller varchar(100) NOT NULL DEFAULT '',
+    PRIMARY KEY (id),
+    constraint uniq_node_instance_id unique(node_instance_id)
+);
+
+CREATE INDEX idx_fiid_sniid_nk ON ei_node_instance (flow_instance_id, source_node_instance_id, node_key);
+
+COMMENT ON COLUMN "ei_node_instance"."id" IS '自增主键';
+COMMENT ON COLUMN "ei_node_instance"."node_instance_id" IS '节点执行实例id';
+COMMENT ON COLUMN "ei_node_instance"."flow_instance_id" IS '流程执行实例id';
+COMMENT ON COLUMN "ei_node_instance"."source_node_instance_id" IS '上一个节点执行实例id';
+COMMENT ON COLUMN "ei_node_instance"."instance_data_id" IS '实例数据id';
+COMMENT ON COLUMN "ei_node_instance"."flow_deploy_id" IS '流程模型部署id';
+COMMENT ON COLUMN "ei_node_instance"."node_key" IS '节点唯一标识';
+COMMENT ON COLUMN "ei_node_instance"."node_type" IS '流程类型';
+COMMENT ON COLUMN "ei_node_instance"."source_node_key" IS '上一个流程节点唯一标识';
+COMMENT ON COLUMN "ei_node_instance"."tenant_id" IS '业务方标识';
+COMMENT ON COLUMN "ei_node_instance"."status" IS '状态(1.处理成功 2.处理中 3.处理失败 4.处理已撤销)';
+COMMENT ON COLUMN "ei_node_instance"."create_time" IS '流程创建时间';
+COMMENT ON COLUMN "ei_node_instance"."modify_time" IS '流程修改时间';
+COMMENT ON COLUMN "ei_node_instance"."archive" IS '归档状态(0未删除，1删除)';
+COMMENT ON COLUMN "ei_node_instance"."tenant" IS '租户';
+COMMENT ON COLUMN "ei_node_instance"."caller" IS '调用方';
+COMMENT ON TABLE "ei_node_instance" IS '节点执行实例表';
