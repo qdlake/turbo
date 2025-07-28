@@ -173,3 +173,70 @@ COMMENT ON COLUMN "ei_node_instance"."archive" IS '归档状态(0未删除，1�
 COMMENT ON COLUMN "ei_node_instance"."tenant" IS '租户';
 COMMENT ON COLUMN "ei_node_instance"."caller" IS '调用方';
 COMMENT ON TABLE "ei_node_instance" IS '节点执行实例表';
+
+CREATE TABLE ei_node_instance_log (
+    id bigserial NOT NULL,
+    node_instance_id varchar(128) NOT NULL DEFAULT '',
+    flow_instance_id varchar(128) NOT NULL DEFAULT '',
+    instance_data_id varchar(128) NOT NULL DEFAULT '',
+    node_key varchar(64) NOT NULL DEFAULT '',
+    tenant_id varchar(16) NOT NULL DEFAULT '',
+    type smallint NOT NULL DEFAULT 0,
+    status smallint NOT NULL DEFAULT 0,
+    create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    archive smallint NOT NULL DEFAULT 0,
+    tenant varchar(100) NOT NULL DEFAULT '',
+    caller varchar(100) NOT NULL DEFAULT '',
+    PRIMARY KEY (id)
+);
+
+COMMENT ON COLUMN "ei_node_instance_log"."id" IS '自增主键';
+COMMENT ON COLUMN "ei_node_instance_log"."node_instance_id" IS '节点执行实例id';
+COMMENT ON COLUMN "ei_node_instance_log"."flow_instance_id" IS '流程执行实例id';
+COMMENT ON COLUMN "ei_node_instance_log"."instance_data_id" IS '实例数据id';
+COMMENT ON COLUMN "ei_node_instance_log"."node_key" IS '节点唯一标识';
+COMMENT ON COLUMN "ei_node_instance_log"."tenant_id" IS '业务方标识';
+COMMENT ON COLUMN "ei_node_instance_log"."type" IS '操作类型(1.系统执行 2.任务提交 3.任务撤销)';
+COMMENT ON COLUMN "ei_node_instance_log"."status" IS '状态(1.处理成功 2.处理中 3.处理失败 4.处理已撤销)';
+COMMENT ON COLUMN "ei_node_instance_log"."create_time" IS '流程创建时间';
+COMMENT ON COLUMN "ei_node_instance_log"."archive" IS '归档状态(0未删除，1删除)';
+COMMENT ON COLUMN "ei_node_instance_log"."tenant" IS '租户';
+COMMENT ON COLUMN "ei_node_instance_log"."caller" IS '调用方';
+COMMENT ON TABLE "ei_node_instance_log" IS '节点执行记录表';
+
+CREATE TABLE ei_instance_data (
+    id bigserial NOT NULL,
+    node_instance_id varchar(128) NOT NULL DEFAULT '',
+    flow_instance_id varchar(128) NOT NULL DEFAULT '',
+    instance_data_id varchar(128) NOT NULL DEFAULT '',
+    flow_deploy_id varchar(128) NOT NULL DEFAULT '',
+    flow_module_id varchar(128) NOT NULL DEFAULT '',
+    node_key varchar(64) NOT NULL DEFAULT '',
+    tenant_id varchar(16) NOT NULL DEFAULT '',
+    instance_data text,
+    type smallint NOT NULL DEFAULT 0,
+    create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    archive smallint NOT NULL DEFAULT 0,
+    tenant varchar(100) NOT NULL DEFAULT '',
+    caller varchar(100) NOT NULL DEFAULT '',
+    PRIMARY KEY (id),
+    constraint uniq_instance_data_id unique(instance_data_id)
+);
+
+CREATE INDEX idx_flow_instance_id ON ei_instance_data (flow_instance_id);
+
+COMMENT ON COLUMN "ei_instance_data"."id" IS '自增主键';
+COMMENT ON COLUMN "ei_instance_data"."node_instance_id" IS '节点执行实例id';
+COMMENT ON COLUMN "ei_instance_data"."flow_instance_id" IS '流程执行实例id';
+COMMENT ON COLUMN "ei_instance_data"."instance_data_id" IS '实例数据id';
+COMMENT ON COLUMN "ei_instance_data"."flow_deploy_id" IS '流程模型部署id';
+COMMENT ON COLUMN "ei_instance_data"."flow_module_id" IS '流程模型id';
+COMMENT ON COLUMN "ei_instance_data"."node_key" IS '节点唯一标识';
+COMMENT ON COLUMN "ei_instance_data"."tenant_id" IS '业务方标识';
+COMMENT ON COLUMN "ei_instance_data"."instance_data" IS '数据列表json';
+COMMENT ON COLUMN "ei_instance_data"."type" IS '操作类型(1.实例初始化 2.系统执行 3.系统主动获取 4.上游更新 5.任务提交 6.任务撤回)';
+COMMENT ON COLUMN "ei_instance_data"."create_time" IS '流程创建时间';
+COMMENT ON COLUMN "ei_instance_data"."archive" IS '归档状态(0未删除，1删除)';
+COMMENT ON COLUMN "ei_instance_data"."tenant" IS '租户';
+COMMENT ON COLUMN "ei_instance_data"."caller" IS '调用方';
+COMMENT ON TABLE "ei_instance_data" IS '实例数据表';
